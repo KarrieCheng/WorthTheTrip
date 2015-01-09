@@ -12,25 +12,16 @@ var map;
 var infowindow;
 var service;
 
-var startPoint = new google.maps.LatLng(31.4614, -96.0631); //Hutto
-var endPoint = new google.maps.LatLng(43.2500, -79.8667); //hamilton
-
-
-// var startPoint = new google.maps.LatLng(31.4614, -96.0631); //Hutto
-// var endPoint = new google.maps.LatLng(43.2500, -79.8667); //hamilton
+var startPoint = new google.maps.LatLng(29.9667, -90.0500 ); 
+var endPoint = new google.maps.LatLng(30.6014, - 96.3144);
 
 /*City Coordinates
-
 N'awwlins: 29.9667, -90.0500      
 College Station: 30.6014, - 96.3144
-
-it's a straightshot from Hutto to Buffalo
 Hutto: 30.5444, -97.5453
 Buffalo, Tx: 31.4614, -96.0631
-
 Hamilton, ON: 43.2500, -79.8667
 austin 30.4382899,-97.7340018
-
 */
 var pushRadius = 20000;
 
@@ -43,15 +34,13 @@ var coordArray = []; //array for the coordinates of waypoints
 var recRadiusArray = []; //recommended radii for each waypoint
 
 //variable checks for the callback function
-var placeType = "";
+var placeType = "city_hall";
 var placeType2 = "casino";
 var numOfType = 0;
+var placeHash = new Hashtable(); //key is the latlong coordinates, value is the object that it is coming from
 
 var directionsDisplay; //Shows map with directions
 var directionsService = new google.maps.DirectionsService(); 
-
-
-
 
 
 
@@ -65,46 +54,20 @@ function initialize() {
 	};
 	map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-
-	// //start and end markers
-	// var startMarker = new google.maps.Marker({
-	// 	map: map,
-	//     position: startPoint,
-	//     title:"This is the start!"
-	// });
-
-	// var endMarker = new google.maps.Marker({
-	// 	map: map,
-	//     position: endPoint,
-	//     title:"This is the end!"
-	// });
-
-	// startMarker.setAnimation(google.maps.Animation.DROP);
-	// startMarker.setAnimation(google.maps.Animation.BOUNCE);
-
-	// endMarker.setAnimation(google.maps.Animation.BOUNCE);
-
-
-	//creates infoWindows at start/end locations
-	//mainly for code reference purposes
-	// startInfoWindow = new google.maps.InfoWindow({
-	// 	content: "<h>Hello!</h><p>This is the starting position!!!</p>"
-	// });
-	// startInfoWindow.open(map,startMarker);
-	// google.maps.event.addListener(startMarker, 'click', function() {
-	//     startInfoWindow.open(map,startMarker);
-	//   });
-
-	// endInfoWindow = new google.maps.InfoWindow({
-	// 	content: "End Position"
-	// });
-	// endInfoWindow.open(map,endMarker);
-
 	//makes places requests possible to call
 	service = new google.maps.places.PlacesService(map);
   	calcRoute();
-
   	//populatePlaces(coordArray,recRadiusArray); SHOULD be here but doesn't work because of threads
+  	//placeHash.each(function(){console.log("place test");}); SAME as above; function is to test
+  	//placeHash.each(function(){createMarker(key.location);});
+
+  	//FIND A WAY TO THE PROGRAM LOCK UNTIL THE REQUESTS ARE COMPLETED
+  	window.setTimeout(function () {
+  		placeHash.each(function(key,value){
+  			createPlaceMarker(value);});
+  	}, 2000);
+
+
 }
 
 function distFromStart (legEnd) {
@@ -130,7 +93,7 @@ function calcRoute() {
  	 directionsService.route(
 	    dirReq,
 	    function (response, status) {
-	        if (status == google.maps.DirectionsStatus.OK) {
+	        if (status == google.maps.DirectionsStatus.OK) { //1!!!!!!!!!!!!!
 	        	//iterates through the routes
 	            for (var i = 0, len = response.routes.length; i < len; i++) {
 
@@ -172,7 +135,7 @@ function calcRoute() {
 	);
 
 	directionsService.route(dirReq, function(response, status) {
-		if (status == google.maps.DirectionsStatus.OK) {
+		if (status == google.maps.DirectionsStatus.OK) {//2!!!!!!!!!!!!!
 		  directionsDisplay.setDirections(response);
 		}
 	});
@@ -190,12 +153,12 @@ function calcSrchRad(coordinates){
 	else
 		pushRadius = distFromStart(coordinates);
 
+	//you really don't want the radius to be that far off from the path
+	pushRadius /= 3;
+
 	//checks if any of these exceeds the 50km limit
 	if (pushRadius > 50000)
 		pushRadius = 50000;
-
-	//you really don't want the radius to be that far off from the path
-	pushRadius /= 2;
 }
 
 
@@ -214,28 +177,34 @@ function populatePlaces(coordinateArray, radiiArray){
 
 		service.nearbySearch(request, callback);
 	}
+	//placeHash.each(function(){console.log("place test");}); 
 }
 
 function callback(results, status) {
-	if (status == google.maps.places.PlacesServiceStatus.OK) {
+	if (status == google.maps.places.PlacesServiceStatus.OK) {//3!!!!!!!!!!!!!
 		for (var i = 0; i < results.length; i++){
-			createPlaceMarker(results[i]);
+
+			/*TD: check if in hash
+				if not, create a new place 
+				
+				*/
+			//MOVETOMAIN 
+			//createPlaceMarker(results[i]);
+
+			placeHash.put(results[i].geometry.location, results[i]);
+			console.log("Size of placeHash: " + placeHash.size());
 			console.log("Number of " + placeType + ": " + numOfType);
 		}
 	}
 }
 
-
+//used in making markers to check waypoints
 function createMarker(place) {
   	var marker = new google.maps.Marker({
 		map: map,
 		position: place,
 		animation: google.maps.Animation.BOUNCE
   	});
-  // 	google.maps.event.addListener(marker, 'click', function() {
-		// infowindow.setContent(place.name);
-		// infowindow.open(map, this);
-  // 	});
 }
 
 function createPlaceMarker(place) {
