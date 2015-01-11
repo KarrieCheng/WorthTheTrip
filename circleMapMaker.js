@@ -1,5 +1,4 @@
 /*
-
 set starting Point
 set ending Point
 
@@ -12,8 +11,8 @@ var map;
 var infowindow;
 var service;
 
-var startPoint = new google.maps.LatLng(29.9667, -90.0500 ); 
-var endPoint = new google.maps.LatLng(30.6014, - 96.3144);
+var startPoint = new google.maps.LatLng(30.4382899,-97.7340018); 
+var endPoint = new google.maps.LatLng(29.9667, -90.0500);
 
 /*City Coordinates
 N'awwlins: 29.9667, -90.0500      
@@ -54,6 +53,46 @@ function initialize() {
 	};
 	map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
+
+//begin autocomplete
+	var StartInput = /** @type {HTMLInputElement} */(
+	document.getElementById('start-input'));
+
+	var EndInput = /** @type {HTMLInputElement} */(
+	document.getElementById('end-input'));
+
+	map.controls[google.maps.ControlPosition.TOP_LEFT].push(StartInput);
+	map.controls[google.maps.ControlPosition.TOP_RIGHT].push(EndInput);
+
+	var autocompleteStart = new google.maps.places.Autocomplete(StartInput);
+	autocompleteStart.bindTo('bounds', map);
+	var autocompleteEnd = new google.maps.places.Autocomplete(EndInput);
+	autocompleteEnd.bindTo('bounds', map);
+
+	var infowindow = new google.maps.InfoWindow();
+	var marker = new google.maps.Marker({
+		map: map,
+		anchorPoint: new google.maps.Point(0, -29)
+	});
+
+	google.maps.event.addListener(autocompleteStart, 'place_changed', function() {
+			infowindow.close();
+			marker.setVisible(false);
+			var place = autocompleteStart.getPlace();
+			if (!place.geometry) {
+			  return;
+		}
+
+		// If the place has a geometry, then present it on a map.
+		if (place.geometry.viewport) {
+		  map.fitBounds(place.geometry.viewport);
+		} else {
+		  map.setCenter(place.geometry.location);
+		  map.setZoom(17);  // Why 17? Because it looks good.
+		}
+	});
+//end auto complete
+
 	//makes places requests possible to call
 	service = new google.maps.places.PlacesService(map);
   	calcRoute();
@@ -62,103 +101,13 @@ function initialize() {
   	//placeHash.each(function(){createMarker(key.location);});
 
   	//FIND A WAY TO THE PROGRAM LOCK UNTIL THE REQUESTS ARE COMPLETED
+
   	window.setTimeout(function () {
   		placeHash.each(function(key,value){
   			createPlaceMarker(value);});
-  	}, 2000);
+  	}, 5000);
 
 
-}
-
-function distFromStart (legEnd) {
-	return google.maps.geometry.spherical.computeDistanceBetween(startPoint,legEnd);
-}
-function distFromEnd (legEnd) {
-	return google.maps.geometry.spherical.computeDistanceBetween(endPoint,legEnd);
-}
-
-function calcRoute() {
-
-	//the following lines calculate the initial route
-  var dirReq = {
-      origin:startPoint,
-      destination:endPoint,
-      travelMode: google.maps.TravelMode.DRIVING,
-      provideRouteAlternatives:true
-  };
-
-  //the following:
-  //checks all the alternative routes and renders them
-  //marks all the end points of all the legs except the last leg (so it's just the middle legs)
- 	 directionsService.route(
-	    dirReq,
-	    function (response, status) {
-	        if (status == google.maps.DirectionsStatus.OK) { //1!!!!!!!!!!!!!
-	        	//iterates through the routes
-	            for (var i = 0, len = response.routes.length; i < len; i++) {
-
-	            	//displays all routes
-	                new google.maps.DirectionsRenderer({
-	                    map: map,
-	                    directions: response,
-	                    routeIndex: i
-	                });
-
-	                // iterate through legs and set markers at the end of each leg.
-	                for (var j = 0; j < response.routes[i].legs.length; j++){
-	                	for (var k  = 0; k < response.routes[i].legs[j].steps.length; k++){
-	                		var stepCoords = response.routes[i].legs[j].steps[k].end_location;
-
-	                		
-	                		//!!!reference to mark where the legs are for now
-	                		//createMarker(stepCoords); 
-
-	                		//~the indices for both the coordinate array and the recRadius should refer to the same point
-
-	                		//array of coordinates should be able to cover the name, lat, lng, name, and rating
-	                		coordArray.push(stepCoords);
-	                		
-	                		calcSrchRad(stepCoords);
-	                		recRadiusArray.push(pushRadius);
-	                	}
-	                }
-	            // console.log("Route " + i + " leg coordinates have been calculated.");
-	            // console.log("The number of coordinates in coordarray is: "+coordArray.length);
-
-	            // console.log("The number of radii in radiiArray is: "+recRadiusArray.length);
-	            }
-	        } else {
-	            $("#error").append("Unable to retrieve your route<br/>");
-	        }
-	        populatePlaces(coordArray,recRadiusArray);
-    	}
-	);
-
-	directionsService.route(dirReq, function(response, status) {
-		if (status == google.maps.DirectionsStatus.OK) {//2!!!!!!!!!!!!!
-		  directionsDisplay.setDirections(response);
-		}
-	});
-}
-
-
-function calcSrchRad(coordinates){
-	if ((distFromStart(coordinates) > distBetween) && (distFromEnd(coordinates) > distBetween)){
-		distFromStart(coordinates)>distFromEnd(coordinates)?
-			pushRadius = distFromEnd(coordinates)-distBetween : pushRadius = distFromStart(coordinates)-distBetween;
-
-	}
-	else if (distFromStart(coordinates)>distFromEnd(coordinates))
-		pushRadius = distFromEnd(coordinates);
-	else
-		pushRadius = distFromStart(coordinates);
-
-	//you really don't want the radius to be that far off from the path
-	pushRadius /= 3;
-
-	//checks if any of these exceeds the 50km limit
-	if (pushRadius > 50000)
-		pushRadius = 50000;
 }
 
 
@@ -167,7 +116,6 @@ function populatePlaces(coordinateArray, radiiArray){
 	for (var i = 0; i < coordinateArray.length ; i++){
 		var nearbyPlaceHolder = new google.maps.LatLng(coordinateArray[i].lat(), coordinateArray[i].lng());
 		//console.log("Waypoint" + i + "; Coordinates: "+nearbyPlaceHolder);
-
 		var request = {
 		    location: nearbyPlaceHolder,
 		    radius: String(radiiArray[i]),
@@ -183,14 +131,6 @@ function populatePlaces(coordinateArray, radiiArray){
 function callback(results, status) {
 	if (status == google.maps.places.PlacesServiceStatus.OK) {//3!!!!!!!!!!!!!
 		for (var i = 0; i < results.length; i++){
-
-			/*TD: check if in hash
-				if not, create a new place 
-				
-				*/
-			//MOVETOMAIN 
-			//createPlaceMarker(results[i]);
-
 			placeHash.put(results[i].geometry.location, results[i]);
 			console.log("Size of placeHash: " + placeHash.size());
 			console.log("Number of " + placeType + ": " + numOfType);
@@ -213,17 +153,13 @@ function createPlaceMarker(place) {
 		map: map,
 		position: place.geometry.location
 	});
-	// google.maps.event.addListener(marker, 'click', function() {
-	// 	infowindow.setContent(place.name);
-	// 	infowindow.open(map, this);
-	// });
 	numOfType++;
 
-	startInfoWindow = new google.maps.InfoWindow({
+	infowindow = new google.maps.InfoWindow({
 		content: infoWindowContent
 	});
 	google.maps.event.addListener(marker, 'click', function() {
-	    startInfoWindow.open(map,marker);
+	   infowindow.open(map,marker);
 	});
 }
 
