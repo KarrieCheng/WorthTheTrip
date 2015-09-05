@@ -13,62 +13,11 @@ Things that should be happening: Use starting point and end point as references
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <style>
-
       html, body, #map-canvas {
         height: 100%;
         margin: 0px;
         padding: 0px
       }
-      .controls {
-        margin-top: 16px;
-        border: 1px solid transparent;
-        border-radius: 2px 0 0 2px;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        height: 32px;
-        outline: none;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-      }
-
-      #start-input, #end-input {
-        background-color: #fff;
-        padding: 11px 11px 13px 13px;
-        width: 400px;
-        font-family: Roboto;
-        font-size: 15px;
-        font-weight: 300;
-        text-overflow: ellipsis;
-      }
-
-      #start-input:focus, #end-input:focus {
-        border-color: #4d90fe;
-        margin-left: -1px;
-        padding-left: 14px;  /* Regular padding-left + 1. */
-        width: 401px;
-      }
-
-      .pac-container {
-        font-family: Roboto;
-      }
-
-      #type-selector {
-        color: #fff;
-        background-color: #4d90fe;
-        padding: 5px 11px 0px 11px;
-      }
-
-      #type-selector label {
-        font-family: Roboto;
-        font-size: 13px;
-        font-weight: 300;
-      }
-    #results-panel{
-        position: float;
-        width: 20%;
-        background-color: #fdd3ff;
-    }
-        
-
     </style>
 
 
@@ -97,32 +46,11 @@ Things that should be happening: Use starting point and end point as references
         
     <!--script type="text/javascript" src="currentLocation.js"></script-->
 	<script type="text/javascript" src="circleMapMaker.js"></script>
-        
-    <!-- Distance Functions js file-->
-    <script type="text/javascript" src="distFxn.js"></script>
 
-    <!-- Begin Autocomplete-->
-        
-  <body>
+    <div id="map-canvas"></div>
 
-      
-      
-      
-      
-    <input id="start-input" class="controls" type="text"
-        placeholder="Port of Leave">
-    <input id="end-input" class="controls" type="text"
-        placeholder="Destination">
 
-    <div id="map-canvas">
-      
-     </div>
-      <!--Get the results-->
-      
+    heyyyy
   </body>
-    <!-- End Autocomplete-->
 
-    <!--div id="map-canvas"></div-->
-
-        
 </html>
