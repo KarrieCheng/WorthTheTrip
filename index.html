@@ -1,11 +1,9 @@
-<!-- Test Index Html-->
+<!----------------
+index.html
 
-<!--
+Shows the map and runs the .js files.
 
-Things that should be happening: Use starting point and end point as references
-
-
--->
+---------------->
 <!DOCTYPE html>
 <html>
   <head>
@@ -19,33 +17,24 @@ Things that should be happening: Use starting point and end point as references
         padding: 0px
       }
     </style>
-
-
-    
   </head>
 
 
 
 	<body>
-		<script type="text/javascript">
+	<script type="text/javascript">
     </script>
-    <!--script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-    <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0eJcVAszJiR9QkhjU6HOgxMqZhAREq80">
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry"></script>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script-->
-        
     <!-- Following line is Google Maps API-->
-        
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIGtisBEl4uCYz8NkM17FdZ2d5LlV9YHg&libraries=geometry,places"></script>
 
     <!-- js HashTable Implementation-->
     <script type="text/javascript" src="jshashtable-3.0.js"></script>
         
-        
-    <!--script type="text/javascript" src="currentLocation.js"></script-->
-	<script type="text/javascript" src="circleMapMaker.js"></script>
+    <!--WTT js files-->
+    <script type="text/javascript" src="circleMapMaker.js"></script>
+    <script type="text/javascript" src="routeFxns.js"></script>
+    <script type="text/javascript" src="distanceFxns.js"></script>
+    <script type="text/javascript" src="mapFxns.js"></script>
 
     <div id="map-canvas"></div>
 
