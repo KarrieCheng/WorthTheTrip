@@ -2,6 +2,7 @@
 routeFxns.js
 ********/
 
+//KC: This whole entire function should just return an array of waypoints instead.
 function calcRoute() {
 
 	//the following lines calculate the initial route
@@ -12,9 +13,6 @@ function calcRoute() {
       provideRouteAlternatives:true
   };
 
-  //the following:
-  //checks all the alternative routes and renders them
-  //marks all the end points of all the legs except the last leg (so it's just the middle legs)
  	 directionsService.route(
 	    dirReq,
 	    function (response, status) {
@@ -22,7 +20,7 @@ function calcRoute() {
 	        	//iterates through the routes
 	            for (var i = 0, len = response.routes.length; i < len; i++) {
 
-	            	//displays all routes
+	            	//FOR DEBUGGING PURPOSES: displays all routes
 	                new google.maps.DirectionsRenderer({
 	                    map: map,
 	                    directions: response,
@@ -30,27 +28,17 @@ function calcRoute() {
 	                });
 
 	                // iterate through legs and set markers at the end of each leg.
+                    // skips the last leg because that's the destination
 	                for (var j = 0; j < response.routes[i].legs.length; j++){
 	                	for (var k  = 0; k < response.routes[i].legs[j].steps.length; k++){
-	                		var stepCoords = response.routes[i].legs[j].steps[k].end_location;
+                            var stepCoords = response.routes[i].legs[j].steps[k].end_location;
 
-	                		
-	                		//!!!reference to mark where the legs are for now
-	                		//createMarker(stepCoords); 
+                            coordArray.push(stepCoords);
 
-	                		//~the indices for both the coordinate array and the recRadius should refer to the same point
-
-	                		//array of coordinates should be able to cover the name, lat, lng, name, and rating
-	                		coordArray.push(stepCoords);
-	                		
-	                		calcSrchRad(stepCoords);
-	                		recRadiusArray.push(pushRadius);
+                            calcSrchRad(stepCoords);
+                            recRadiusArray.push(pushRadius);
 	                	}
 	                }
-	            // console.log("Route " + i + " leg coordinates have been calculated.");
-	            // console.log("The number of coordinates in coordarray is: "+coordArray.length);
-
-	            // console.log("The number of radii in radiiArray is: "+recRadiusArray.length);
 	            }
 	        } else {
 	            $("#error").append("Unable to retrieve your route<br/>");
@@ -66,4 +54,15 @@ function calcRoute() {
 	});
 }
 
-
+ //for every single waypoint, checks wanted places
+function populatePlaces(coordinateArray, radiiArray){
+	for (var i = 0; i < coordinateArray.length ; i++){
+		var nearbyPlaceHolder = new google.maps.LatLng(coordinateArray[i].lat(), coordinateArray[i].lng());
+        var request = {
+		    location: nearbyPlaceHolder,
+		    radius: String(radiiArray[i]),
+		    types: [placeType, placeType2]
+		};
+		service.nearbySearch(request, callback);
+	}
+}

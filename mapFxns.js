@@ -2,6 +2,8 @@
 mapFxns.js
 ********/
 
+
+
 //used in making markers to check waypoints
 function createMarker(place) {
   	var marker = new google.maps.Marker({
@@ -17,10 +19,7 @@ function createPlaceMarker(place) {
 		map: map,
 		position: place.geometry.location
 	});
-	// google.maps.event.addListener(marker, 'click', function() {
-	// 	infowindow.setContent(place.name);
-	// 	infowindow.open(map, this);
-	// });
+
 	numOfType++;
 
 	startInfoWindow = new google.maps.InfoWindow({
